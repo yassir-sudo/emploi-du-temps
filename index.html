@@ -1,43 +1,373 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>الجدول الزمني</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
-  <style>
-    :root{--bg:#edf1f5;--surface:#fff;--alt:#f5f8fb;--ink:#10222f;--muted:#5a6b78;--line:#d6dee6;--head:#10222f;--accent:#0e7c86;--warning:#c93232;font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;color:var(--ink)}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);padding:2rem 16px 3rem}.page{max-width:78rem;margin:auto}.top{text-align:center;margin-bottom:1.5rem}h1{margin:0;font:700 clamp(2.2rem,6vw,3.6rem)/1.2 'Reem Kufi',Tahoma,sans-serif}h1:after{content:'';display:block;width:4.5rem;height:5px;border-radius:4px;background:var(--accent);margin:.6rem auto}.meta{display:grid;grid-template-columns:1fr auto 1fr;gap:.6em;max-width:42rem;margin:auto;color:var(--muted);font-size:.9rem}.s1{text-align:left}.s3{text-align:right}.s2{border-inline:1px solid var(--line);padding-inline:.6em}.group{color:var(--muted);margin-top:.5rem}
-    .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 12px 32px -18px #10222f55}.scroll{overflow-x:auto}table{width:100%;min-width:66rem;border-collapse:separate;border-spacing:0;table-layout:fixed}th{background:var(--head);color:#eaf2f7;padding:.95rem .4rem;font-size:.92rem}td{padding:.55rem .4rem;text-align:center;border-bottom:1px solid var(--line);border-inline-start:1px solid var(--line);background:var(--surface)}tr:nth-child(even) td{background:var(--alt)}th:first-child,td:first-child{position:sticky;right:0;z-index:1}td:first-child{box-shadow:-1px 0 var(--line);text-align:right}th:first-child{z-index:2}.modwrap{display:flex;align-items:center;gap:.4rem}.dot{width:.35rem;height:1.9rem;border-radius:3px;background:hsl(var(--h) 65% 42%);flex:none}.cell{min-height:2rem;padding:.3rem .4rem;border-radius:8px;overflow-wrap:anywhere;outline:0}.time{white-space:nowrap;background:hsl(var(--h) 62% 90%);color:hsl(var(--h) 45% 22%);font-weight:500;font-size:.82rem}.cell:empty:before{content:'—';color:var(--muted);opacity:.6}.note{display:flex;gap:.75rem;align-items:baseline;padding:.85rem 1.1rem;background:var(--alt)}.note strong{color:var(--accent)}.note .cell{flex:1}.editable .cell{cursor:text}.editable .cell:focus{box-shadow:0 0 0 2px var(--accent);background:#fff}.locked .cell{cursor:default}.status{min-height:1.5rem;text-align:center;color:var(--muted);margin:1rem}.admin-bar{display:none;justify-content:center;gap:.6rem;margin-top:1.25rem}.admin-bar.active{display:flex}.btn{border:0;border-radius:8px;padding:.7rem 1.1rem;font:600 1rem inherit;cursor:pointer}.save{background:var(--accent);color:#fff}.logout{background:#e7edf1;color:var(--ink)}.admin-trigger{position:fixed;left:18px;bottom:18px;width:42px;height:42px;border-radius:50%;border:0;background:var(--warning);color:#fff;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 12px #0004}.dialog{border:0;border-radius:14px;padding:0;max-width:min(92vw,370px);box-shadow:0 18px 55px #0005}.dialog::backdrop{background:#0008}.dialog form{padding:1.4rem}.dialog h2{margin:0 0:.5rem;font-family:'Reem Kufi',sans-serif}.dialog input{width:100%;padding:.7rem;border:1px solid var(--line);border-radius:8px;font:inherit;direction:ltr}.dialog menu{display:flex;justify-content:flex-start;gap:.5rem;margin:1rem 0 0;padding:0}.error{color:#b42318;min-height:1.5rem;margin:.6rem 0 0;font-size:.9rem}@media(max-width:600px){body{padding-top:1.25rem}.meta{font-size:.7rem}}
-  </style>
-</head>
-<body>
-  <div class="page locked" id="page">
-    <header class="top"><h1>الجدول الزمني</h1><div class="meta"><span class="s1"><span class="cell" data-k="subj">القانون الإداري والمالي</span></span><span class="s2"><span class="cell" data-k="sem">السداسي الخامس</span></span><span class="s3"><span class="cell" data-k="year">2026/2027</span></span></div><div class="group"><span class="cell" data-k="group">مجموعة A</span></div></header>
-    <main class="card"><div class="scroll"><table><thead><tr><th>عنوان الوحدة</th><th>الأستاذ</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th><th>الجمعة</th><th>السبت</th><th>القاعة</th></tr></thead><tbody id="rows"></tbody></table></div><div class="note"><strong>ملاحظة:</strong><div class="cell" data-k="note"></div></div></main>
-    <p class="status" id="status">جار تحميل الجدول…</p><div class="admin-bar" id="adminBar"><button class="btn save" id="save">تأكيد ونشر التعديلات</button><button class="btn logout" id="logout">خروج</button></div>
-  </div>
-  <button class="admin-trigger" id="adminTrigger" aria-label="دخول المشرف" title="دخول المشرف">●</button>
-  <dialog class="dialog" id="loginDialog"><form id="loginForm"><h2>دخول المشرف</h2><label for="code">رمز الدخول</label><input id="code" type="password" autocomplete="current-password" required><p class="error" id="loginError"></p><menu><button class="btn save" type="submit">دخول</button><button class="btn logout" type="button" id="closeDialog">إلغاء</button></menu></form></dialog>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  (() => {
-    const client = window.supabase.createClient('https://avjzcbwpdpxarbvkfemo.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2anpjYndwZHB4YXJidmtmZW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU2MzkwMDksImV4cCI6MjExMTIxNTAwOX0.NPtKBIiW5yDwSpHZRRc-LqFl8HJPnxvtAosyyLTaoQA');
-    const rows = [{h:190,m:'الطلبيات.ع.',p:'د.سعيد رشيد',d:['08:30 – 10:30','','08:30 – 10:30','','',''],r:'قاعة 12'},{h:150,m:'النظرية.ع.ض',p:'د.زوبير هشام',d:['','10:45 – 12:45','','08:30 – 10:30','',''],r:'قاعة 5'},{h:35,m:'طرق.ت.م.ع',p:'د.أعميمي رضوان',d:['10:45 – 12:45','','','','08:30 – 10:30',''],r:'قاعة 7'},{h:345,m:'التدبير.ع.ج',p:'د.محضوض أمين',d:['','08:30 – 10:30','','10:45 – 12:45','',''],r:'قاعة 3'},{h:220,m:'تدبير.م.ح',p:'د.الوسطاتي عبد الرحمان',d:['','','14:30 – 16:30','','','08:30 – 10:30'],r:'المدرج أ'},{h:95,m:'مناهج.ب.ت',p:'د.ميلود بلقاضي',d:['14:30 – 16:30','','','','10:45 – 12:45',''],r:'قاعة 9'},{h:260,m:'اللغة الإنجليزية',p:'دة.عدوي عائشة',d:['','14:30 – 16:30','','','','10:45 – 12:45'],r:'قاعة 2'}];
-    const page=document.querySelector('#page'), status=document.querySelector('#status'), bar=document.querySelector('#adminBar'), dialog=document.querySelector('#loginDialog');
-    function cell(k,v,cls=''){return `<div class="cell ${cls}" data-k="${k}">${v}</div>`} function build(){document.querySelector('#rows').innerHTML=rows.map((r,i)=>`<tr style="--h:${r.h}"><td><div class="modwrap"><i class="dot"></i>${cell('r'+i+'m',r.m)}</div></td><td>${cell('r'+i+'p',r.p)}</td>${r.d.map((v,j)=>'<td>'+cell('r'+i+'d'+j,v,'time')+'</td>').join('')}<td>${cell('r'+i+'r',r.r)}</td></tr>`).join('')}
-    function fields(){return [...document.querySelectorAll('[data-k]')]} function setData(data){if(!data)return;fields().forEach(el=>{let k=el.dataset.k;if(Object.prototype.hasOwnProperty.call(data,k))el.textContent=data[k]||''})} function getData(){return Object.fromEntries(fields().map(el=>[el.dataset.k,el.textContent.trim()]))}
-    function editable(on){page.classList.toggle('editable',on);page.classList.toggle('locked',!on);fields().forEach(el=>el.contentEditable=on?'plaintext-only':'false');bar.classList.toggle('active',on);document.querySelector('#adminTrigger').style.display=on?'none':'';status.textContent=on?'وضع التحرير مفعّل. اضغط «تأكيد ونشر التعديلات» عند الانتهاء.':'آخر نسخة منشورة من الجدول.'}
-    async function load(){const {data,error}=await client.from('timetable_content').select('data,updated_at').eq('id',1).single();if(error){status.textContent='تعذر تحميل الجدول. حاول تحديث الصفحة.';return}setData(data.data);status.textContent='آخر تحديث: '+new Date(data.updated_at).toLocaleString('ar-MA')}
-    build();load(); client.auth.getSession().then(({data})=>editable(!!data.session));
-    document.querySelector('#adminTrigger').onclick=()=>dialog.showModal();document.querySelector('#closeDialog').onclick=()=>dialog.close();
-    document.querySelector('#loginForm').onsubmit=async e=>{e.preventDefault();let errorEl=document.querySelector('#loginError');errorEl.textContent='';let {error}=await client.auth.signInWithPassword({email:'admin@timetable.local',password:document.querySelector('#code').value});if(error){errorEl.textContent='رمز الدخول غير صحيح.';return}dialog.close();editable(true)};
-    document.querySelector('#logout').onclick=async()=>{await client.auth.signOut();editable(false)};
-    document.querySelector('#save').onclick=async()=>{let button=document.querySelector('#save');button.disabled=true;status.textContent='جار نشر التعديلات…';let {error}=await client.from('timetable_content').update({data:getData(),updated_at:new Date().toISOString()}).eq('id',1);button.disabled=false;if(error){status.textContent='تعذر حفظ التعديلات. أعد تسجيل الدخول ثم حاول مرة أخرى.';return}status.textContent='تم نشر التعديلات بنجاح، وستظهر للزوار عند تحميل الصفحة.'};
-    document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-k]')){e.preventDefault();e.target.blur()}});
-  })();
-  </script>
-</body>
-</html>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>جدول التوقيت</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* Layout: one centered axis. Title, then a row where the semester sits exactly in the middle (subject on one side, year on the other), then the group badge; below that one wide timetable card whose module column stays pinned on the right while the grid scrolls sideways on phones. */
+:root {
+  --bg: #edf1f5;
+  --surface: #ffffff;
+  --surface-alt: #f5f8fb;
+  --ink: #10222f;
+  --muted: #5a6b78;
+  --line: #d6dee6;
+  --head-bg: #10222f;
+  --head-ink: #eaf2f7;
+  --accent: #0e7c86;
+  --on-accent: #ffffff;
+  --today: #f2a900;
+  --today-bg: #fff6dc;
+  --chip-s: 62%;
+  --chip-l: 90%;
+  --chip-ink-l: 22%;
+  --dot-l: 42%;
+  --font-display: 'Reem Kufi', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a141c;
+    --surface: #111f2a;
+    --surface-alt: #162736;
+    --ink: #e6eef4;
+    --muted: #93a5b3;
+    --line: #243746;
+    --head-bg: #1b3649;
+    --head-ink: #eaf2f7;
+    --accent: #3cc3cf;
+    --on-accent: #072a30;
+    --today: #f2b933;
+    --today-bg: #2b2511;
+    --chip-s: 42%;
+    --chip-l: 24%;
+    --chip-ink-l: 86%;
+    --dot-l: 62%;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a141c;
+  --surface: #111f2a;
+  --surface-alt: #162736;
+  --ink: #e6eef4;
+  --muted: #93a5b3;
+  --line: #243746;
+  --head-bg: #1b3649;
+  --head-ink: #eaf2f7;
+  --accent: #3cc3cf;
+  --on-accent: #072a30;
+  --today: #f2b933;
+  --today-bg: #2b2511;
+  --chip-s: 42%;
+  --chip-l: 24%;
+  --chip-ink-l: 86%;
+  --dot-l: 62%;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-block: 2rem 2.5rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 78rem; margin-inline: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Title block, centered */
+.top { display: flex; flex-direction: column; gap: .7rem; align-items: center; text-align: center; }
+h1 {
+  margin: 0; font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1.15; text-wrap: balance;
+}
+h1::after {
+  content: ""; display: block; width: 4.5rem; height: 5px; border-radius: 3px;
+  background: var(--accent); margin: .6rem auto 0;
+}
+.meta, .group {
+  font-size: clamp(.62rem, calc((100vw - 32px) / 30), .88rem);
+  color: var(--muted); font-weight: 500; white-space: nowrap;
+}
+.meta {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center;
+  column-gap: .6em; width: 100%; max-width: 42rem;
+}
+.s1 { justify-self: end; text-align: end; }
+.s2 { justify-self: center; padding-inline: .6em; border-inline: 1px solid var(--line); }
+.s3 { justify-self: start; text-align: start; }
+
+/* Timetable card */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(16, 34, 47, .06), 0 12px 32px -18px rgba(16, 34, 47, .25);
+}
+.scroll { overflow-x: auto; }
+table { width: 100%; min-width: 66rem; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+thead th {
+  background: var(--head-bg); color: var(--head-ink);
+  font-weight: 600; font-size: .92rem; text-align: center;
+  padding: .95rem .4rem; position: relative;
+  border-inline-start: 1px solid rgba(255, 255, 255, .08);
+}
+thead th:first-child { border-inline-start: 0; text-align: start; padding-inline-start: .8rem; }
+thead th.today { color: var(--today); padding-bottom: 1.3rem; }
+thead th.today::after {
+  content: "اليوم"; position: absolute; inset-inline: 0; bottom: .15rem;
+  font-size: .68rem; font-weight: 500; letter-spacing: .04em;
+}
+
+tbody td {
+  padding: .55rem .4rem; vertical-align: middle; text-align: center;
+  border-bottom: 1px solid var(--line);
+  border-inline-start: 1px solid var(--line);
+  background: var(--surface);
+}
+tbody td[data-day] { padding-inline: .3rem; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody td:first-child { border-inline-start: 0; text-align: start; }
+tbody tr:nth-child(even) td { background: var(--surface-alt); }
+tbody td.today { background: var(--today-bg); }
+tbody tr:hover td { filter: brightness(.985); }
+
+/* Pinned first column */
+thead th:first-child, tbody td:first-child { position: sticky; right: 0; z-index: 2; }
+tbody td:first-child { box-shadow: -1px 0 0 var(--line); }
+
+.modwrap { display: flex; align-items: center; gap: .4rem; padding-inline: .4rem .1rem; }
+.dot {
+  flex: none; width: .35rem; height: 1.9rem; border-radius: 3px;
+  background: hsl(var(--h) 65% var(--dot-l));
+}
+.cell {
+  min-height: 2rem; padding: .3rem .4rem; border-radius: 8px; outline: none;
+  overflow-wrap: anywhere; font-size: .9rem; min-width: 0;
+}
+.cell:empty::before { content: "—"; color: var(--muted); opacity: .6; }
+.cell:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.cell:focus-visible, .cell:focus {
+  box-shadow: 0 0 0 2px var(--accent); background: var(--surface);
+}
+.cell.mini { min-height: 0; padding: .1rem .25rem; font-size: inherit; }
+.mod .cell { font-weight: 600; flex: 1; font-size: .86rem; padding-inline: .2rem; }
+.time { white-space: nowrap; }
+.time:not(:empty) {
+  background: hsl(var(--h) var(--chip-s) var(--chip-l));
+  color: hsl(var(--h) 45% var(--chip-ink-l));
+  font-weight: 500; font-variant-numeric: tabular-nums; font-size: .82rem;
+  padding: .45rem .2rem;
+}
+.time:not(:empty):focus { background: var(--surface); color: var(--ink); }
+
+/* Note strip */
+.note {
+  display: flex; flex-wrap: wrap; gap: .4rem .75rem; align-items: baseline;
+  padding: .85rem 1.1rem; border-top: 1px solid var(--line);
+  background: var(--surface-alt); font-size: .9rem;
+}
+.note strong { color: var(--accent); font-weight: 600; flex: none; }
+.note .cell { flex: 1; min-width: 12rem; min-height: 1.6rem; padding: .1rem .4rem; color: var(--ink); }
+.note .cell:empty::before { content: ""; }
+
+@media (max-width: 600px) {
+  body { padding-block: 1.25rem 1.75rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* عناصر المشرف لا تغيّر تصميم الجدول أو أبعاده. */
+.locked .cell { cursor: default; }
+.locked .cell:hover { background: transparent; }
+.locked .cell:focus { box-shadow: none; background: transparent; }
+.admin-bar { display: none; justify-content: center; gap: .6rem; }
+.admin-bar.active { display: flex; }
+.btn { border: 0; border-radius: 8px; padding: .65rem 1rem; font: 600 .9rem var(--font-body); cursor: pointer; }
+.save { background: var(--accent); color: var(--on-accent); }
+.logout { background: var(--surface-alt); border: 1px solid var(--line); color: var(--ink); }
+.admin-trigger { position: fixed; left: 18px; bottom: 18px; width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: #d42e2e; box-shadow: 0 2px 7px #0005; cursor: pointer; }
+.dialog { border: 0; border-radius: 14px; padding: 0; width: min(92vw,360px); background: var(--surface); color: var(--ink); }
+.dialog::backdrop { background: #0008; }
+.dialog form { padding: 1.25rem; }
+.dialog h2 { margin: 0 0 .5rem; font-family: var(--font-display); }
+.dialog input { width: 100%; padding: .65rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; direction: ltr; }
+.dialog menu { display: flex; gap: .5rem; margin: 1rem 0 0; padding: 0; }
+.error, .status { min-height: 1.4rem; margin: .5rem 0 0; text-align: center; color: var(--muted); font-size: .85rem; }
+.error { color: #ba2525; }
+</style>
+
+<div class="page" dir="rtl" lang="ar">
+  <header class="top">
+    <h1>الجدول الزمني</h1>
+    <div class="meta">
+      <span class="s1"><span class="cell mini" contenteditable="plaintext-only" spellcheck="false" data-k="subj">القانون الإداري والمالي</span></span>
+      <span class="s2"><span class="cell mini" contenteditable="plaintext-only" spellcheck="false" data-k="sem">السداسي الخامس</span></span>
+      <span class="s3"><span class="cell mini" contenteditable="plaintext-only" spellcheck="false" data-k="year">2026/2027</span></span>
+    </div>
+    <div class="group"><span class="cell mini" contenteditable="plaintext-only" spellcheck="false" data-k="group">مجموعة A</span></div>
+  </header>
+
+  <main class="card">
+    <div class="scroll">
+      <table id="tt">
+        <caption class="sr">الجدول الزمني الأسبوعي: الوحدات والأساتذة وأيام الأسبوع والقاعات</caption>
+        <colgroup>
+          <col style="width:11.5%"><col style="width:15%">
+          <col style="width:10.8%"><col style="width:10.8%"><col style="width:10.8%">
+          <col style="width:10.8%"><col style="width:10.8%"><col style="width:10.8%">
+          <col style="width:8.7%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">عنوان الوحدة</th>
+            <th scope="col">الأستاذ</th>
+            <th scope="col" data-day="0">الإثنين</th>
+            <th scope="col" data-day="1">الثلاثاء</th>
+            <th scope="col" data-day="2">الأربعاء</th>
+            <th scope="col" data-day="3">الخميس</th>
+            <th scope="col" data-day="4">الجمعة</th>
+            <th scope="col" data-day="5">السبت</th>
+            <th scope="col">القاعة</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>ملاحظة:</strong>
+      <div class="cell" contenteditable="plaintext-only" spellcheck="false" data-k="note"></div>
+    </div>
+  </main>
+</div>
+  <p class="status" id="status">جار تحميل الجدول…</p>
+  <div class="admin-bar" id="adminBar"><button class="btn save" id="saveRemote">تأكيد ونشر التعديلات</button><button class="btn logout" id="logout">خروج</button></div>
+</div>
+<button class="admin-trigger" id="adminTrigger" aria-label="دخول المشرف" title="دخول المشرف"></button>
+<dialog class="dialog" id="loginDialog"><form id="loginForm"><h2>دخول المشرف</h2><label for="code">رمز الدخول</label><input id="code" type="password" required><p class="error" id="loginError"></p><menu><button class="btn save" type="submit">دخول</button><button class="btn logout" type="button" id="closeDialog">إلغاء</button></menu></form></dialog>
+
+<script>
+(function () {
+  var KEY = 'timetable-v2';
+  var ROWS = [
+    { h: 190, m: 'الطلبيات.ع.', p: 'د.سعيد رشيد', d: ['08:30 – 10:30', '', '08:30 – 10:30', '', '', ''], r: 'قاعة 12' },
+    { h: 150, m: 'النظرية.ع.ض', p: 'د.زوبير هشام', d: ['', '10:45 – 12:45', '', '08:30 – 10:30', '', ''], r: 'قاعة 5' },
+    { h: 35, m: 'طرق.ت.م.ع', p: 'د.أعميمي رضوان', d: ['10:45 – 12:45', '', '', '', '08:30 – 10:30', ''], r: 'قاعة 7' },
+    { h: 345, m: 'التدبير.ع.ج', p: 'د.محضوض أمين', d: ['', '08:30 – 10:30', '', '10:45 – 12:45', '', ''], r: 'قاعة 3' },
+    { h: 220, m: 'تدبير.م.ح', p: 'د.الوسطاتي عبد الرحمان', d: ['', '', '14:30 – 16:30', '', '', '08:30 – 10:30'], r: 'المدرج أ' },
+    { h: 95, m: 'مناهج.ب.ت', p: 'د.ميلود بلقاضي', d: ['14:30 – 16:30', '', '', '', '10:45 – 12:45', ''], r: 'قاعة 9' },
+    { h: 260, m: 'اللغة الإنجليزية', p: 'دة.عدوي عائشة', d: ['', '14:30 – 16:30', '', '', '', '10:45 – 12:45'], r: 'قاعة 2' }
+  ];
+
+  var rowsEl = document.getElementById('rows');
+
+  function ce(k, text, cls) {
+    return '<div class="cell' + (cls ? ' ' + cls : '') + '" contenteditable="plaintext-only" spellcheck="false" data-k="' + k + '">' + text + '</div>';
+  }
+
+  function build() {
+    rowsEl.innerHTML = ROWS.map(function (r, i) {
+      var days = r.d.map(function (t, j) {
+        return '<td data-day="' + j + '">' + ce('r' + i + 'd' + j, t, 'time') + '</td>';
+      }).join('');
+      return '<tr style="--h:' + r.h + '">' +
+        '<td class="mod"><div class="modwrap"><span class="dot"></span>' + ce('r' + i + 'm', r.m, '') + '</div></td>' +
+        '<td>' + ce('r' + i + 'p', r.p, '') + '</td>' + days +
+        '<td>' + ce('r' + i + 'r', r.r, '') + '</td></tr>';
+    }).join('');
+  }
+
+  function fields() { return document.querySelectorAll('[data-k]'); }
+
+  function loadSaved() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      var FIX = { 'د.أعميم رضوان': 'د.أعميمي رضوان', 'د.ميلود بلقاضب': 'د.ميلود بلقاضي' };
+      fields().forEach(function (el) {
+        var k = el.getAttribute('data-k');
+        if (Object.prototype.hasOwnProperty.call(saved, k)) el.textContent = FIX[saved[k]] || saved[k];
+      });
+    } catch (e) {}
+  }
+
+  function save() {
+    try {
+      var out = {};
+      fields().forEach(function (el) { out[el.getAttribute('data-k')] = el.textContent; });
+      localStorage.setItem(KEY, JSON.stringify(out));
+    } catch (e) {}
+  }
+
+  function markToday() {
+    var g = new Date().getDay();
+    if (g === 0) return;
+    document.querySelectorAll('[data-day="' + (g - 1) + '"]').forEach(function (el) { el.classList.add('today'); });
+  }
+
+  build();
+  loadSaved();
+  markToday();
+
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el && el.getAttribute && el.getAttribute('data-k') !== null && el.textContent.trim() === '') el.textContent = '';
+    save();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.getAttribute && e.target.getAttribute('data-k') !== null) {
+      e.preventDefault();
+      e.target.blur();
+    }
+  });
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* طبقة الحفظ السحابية: تبقي بناء وتصميم الجدول الأصليين دون تغيير. */
+(function () {
+  var db = window.supabase.createClient('https://avjzcbwpdpxarbvkfemo.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2anpjYndwZHB4YXJidmtmZW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU2MzkwMDksImV4cCI6MjExMTIxNTAwOX0.NPtKBIiW5yDwSpHZRRc-LqFl8HJPnxvtAosyyLTaoQA');
+  var page = document.querySelector('.page'), status = document.getElementById('status');
+  var bar = document.getElementById('adminBar'), trigger = document.getElementById('adminTrigger');
+  var dialog = document.getElementById('loginDialog');
+  function fields() { return document.querySelectorAll('[data-k]'); }
+  function values() { var out = {}; fields().forEach(function (el) { out[el.getAttribute('data-k')] = el.textContent.trim(); }); return out; }
+  function apply(data) { if (!data) return; fields().forEach(function (el) { var k = el.getAttribute('data-k'); if (Object.prototype.hasOwnProperty.call(data, k)) el.textContent = data[k] || ''; }); }
+  function setEditing(enabled) {
+    page.classList.toggle('locked', !enabled);
+    fields().forEach(function (el) { el.contentEditable = enabled ? 'plaintext-only' : 'false'; });
+    bar.classList.toggle('active', enabled); trigger.hidden = enabled;
+    if (enabled) status.textContent = 'وضع التحرير مفعّل. اضغط «تأكيد ونشر التعديلات» عند الانتهاء.';
+  }
+  async function load() {
+    var result = await db.from('timetable_content').select('data,updated_at').eq('id', 1).single();
+    if (result.error) { status.textContent = 'تعذر تحميل الجدول. حاول تحديث الصفحة.'; return; }
+    apply(result.data.data); status.textContent = 'آخر تحديث: ' + new Date(result.data.updated_at).toLocaleString('ar-MA');
+  }
+  setEditing(false); load();
+  db.auth.getSession().then(function (result) { if (result.data.session) setEditing(true); });
+  trigger.onclick = function () { dialog.showModal(); };
+  document.getElementById('closeDialog').onclick = function () { dialog.close(); };
+  document.getElementById('loginForm').onsubmit = async function (event) {
+    event.preventDefault(); document.getElementById('loginError').textContent = '';
+    var result = await db.auth.signInWithPassword({ email: 'admin@timetable.local', password: document.getElementById('code').value });
+    if (result.error) { document.getElementById('loginError').textContent = 'رمز الدخول غير صحيح.'; return; }
+    dialog.close(); setEditing(true);
+  };
+  document.getElementById('logout').onclick = async function () { await db.auth.signOut(); setEditing(false); status.textContent = 'آخر نسخة منشورة من الجدول.'; };
+  document.getElementById('saveRemote').onclick = async function () {
+    var button = this; button.disabled = true; status.textContent = 'جار نشر التعديلات…';
+    var result = await db.from('timetable_content').update({ data: values(), updated_at: new Date().toISOString() }).eq('id', 1);
+    button.disabled = false; status.textContent = result.error ? 'تعذر حفظ التعديلات. أعد تسجيل الدخول ثم حاول مرة أخرى.' : 'تم نشر التعديلات بنجاح، وستظهر للزوار عند تحميل الصفحة.';
+  };
+})();
+</script>
+
+</body></html>
