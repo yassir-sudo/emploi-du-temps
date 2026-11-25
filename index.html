@@ -200,6 +200,8 @@ tbody td:first-child { box-shadow: -1px 0 0 var(--line); }
 .dialog menu { display: flex; gap: .5rem; margin: 1rem 0 0; padding: 0; }
 .error, .status { min-height: 1.4rem; margin: .5rem 0 0; text-align: center; color: var(--muted); font-size: .85rem; }
 .error { color: #ba2525; }
+/* لا تعتمد حالة خانة الوقت على :empty فقط؛ بعض المتصفحات تترك <br> بعد المسح. */
+.time.is-empty { background: transparent !important; color: inherit !important; padding: .3rem .4rem !important; }
 </style>
 
 <div class="page" dir="rtl" lang="ar">
@@ -340,6 +342,12 @@ tbody td:first-child { box-shadow: -1px 0 0 var(--line); }
   function fields() { return document.querySelectorAll('[data-k]'); }
   function values() { var out = {}; fields().forEach(function (el) { out[el.getAttribute('data-k')] = el.textContent.trim(); }); return out; }
   function apply(data) { if (!data) return; fields().forEach(function (el) { var k = el.getAttribute('data-k'); if (Object.prototype.hasOwnProperty.call(data, k)) el.textContent = data[k] || ''; }); }
+  function syncTimeCell(el) {
+    if (!el.classList.contains('time')) return;
+    var empty = !el.textContent.trim();
+    if (empty) el.textContent = '';
+    el.classList.toggle('is-empty', empty);
+  }
   function setEditing(enabled) {
     page.classList.toggle('locked', !enabled);
     fields().forEach(function (el) { el.contentEditable = enabled ? 'plaintext-only' : 'false'; });
@@ -349,8 +357,10 @@ tbody td:first-child { box-shadow: -1px 0 0 var(--line); }
   async function load() {
     var result = await db.from('timetable_content').select('data,updated_at').eq('id', 1).single();
     if (result.error) { status.textContent = 'تعذر تحميل الجدول. حاول تحديث الصفحة.'; return; }
-    apply(result.data.data); status.textContent = 'آخر تحديث: ' + new Date(result.data.updated_at).toLocaleString('ar-MA');
+    apply(result.data.data); document.querySelectorAll('.time').forEach(syncTimeCell); status.textContent = 'آخر تحديث: ' + new Date(result.data.updated_at).toLocaleString('ar-MA');
   }
+  document.querySelectorAll('.time').forEach(syncTimeCell);
+  document.addEventListener('input', function (event) { syncTimeCell(event.target); });
   setEditing(false); load();
   db.auth.getSession().then(function (result) { if (result.data.session) setEditing(true); });
   trigger.onclick = function () { dialog.showModal(); };
